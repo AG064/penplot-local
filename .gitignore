@@ -209,6 +209,15 @@ tempCodeRunnerFile.py
 # PyPI configuration file
 .pypirc
 
+# PenPlot job outputs and printer files
+PenPlot_*/
+*.gcode
+*.gcode.3mf
+
+# Common desktop metadata
+.DS_Store
+Thumbs.db
+
 # Marimo
 marimo/_static/
 marimo/_lsp/

@@ -1,0 +1,8 @@
+# Versions tested for this recorded conversion. First installation needs Internet.
+PyMuPDF==1.26.7
+Pillow==12.3.0
+numpy==2.3.5
+opencv-python==4.13.0.92
+scipy==1.17.0
+scikit-image==0.26.0
+pyzbar==0.1.9
