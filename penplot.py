@@ -23,7 +23,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 from scipy.ndimage import distance_transform_edt
 from skimage.morphology import skeletonize
 
-VERSION = '0.1.0'
+VERSION = '0.1.1'
 MAX_PIXELS = 24_000_000
 MAX_BYTES = 32 * 1024 * 1024
 MAX_PATHS = 8_000
@@ -36,7 +36,7 @@ def sha256(data: bytes) -> str:
 
 
 def write_json(path: Path, obj: Any) -> None:
-    path.write_text(json.dumps(obj, indent=2, ensure_ascii=False, allow_nan=False) + '\n', encoding='utf-8')
+    path.write_text(json.dumps(obj, indent=2, ensure_ascii=False, allow_nan=False) + '\n', encoding='utf-8', newline='\n')
 
 
 @dataclasses.dataclass(frozen=True)
@@ -443,7 +443,7 @@ def save_svg(path:Path,paths:list[np.ndarray],size_mm:list[float],pen:float)->No
         if len(p)==1:
             s.append(f'<circle cx="{p[0,0]:.6f}" cy="{p[0,1]:.6f}" r="{pen/2:.6f}" fill="black" stroke="none"/>')
         else:s.append('<path d="M '+' L '.join(f'{x:.6f},{y:.6f}' for x,y in p)+'"/>')
-    s+=['</g>','</svg>'];path.write_text('\n'.join(s),encoding='utf-8')
+    s+=['</g>','</svg>'];path.write_text('\n'.join(s),encoding='utf-8',newline='\n')
 
 
 def convert(source:Path,out:Path,cfg:Settings)->dict:
@@ -488,8 +488,8 @@ def convert(source:Path,out:Path,cfg:Settings)->dict:
     frame_text=gcode(map_native(frame,size,cfg),cfg,air=True)
     _,frame_check=parse_and_validate(frame_text,cfg,air=True)
     out.mkdir(parents=True)
-    (out/'02_FULL_LABEL_OR_ART_CALIBRATE_FIRST.gcode').write_text(full,encoding='ascii')
-    (out/'00_AIR_FRAME_CALIBRATE_FIRST.gcode').write_text(frame_text,encoding='ascii')
+    (out/'02_FULL_LABEL_OR_ART_CALIBRATE_FIRST.gcode').write_text(full,encoding='ascii',newline='\n')
+    (out/'00_AIR_FRAME_CALIBRATE_FIRST.gcode').write_text(frame_text,encoding='ascii',newline='\n')
     Image.fromarray(grey).save(out/'SOURCE_CROP.png',dpi=(cfg.dpi,cfg.dpi))
     Image.fromarray(np.where(mask,0,255).astype(np.uint8)).save(out/'BINARY_TARGET.png',dpi=(cfg.dpi,cfg.dpi))
     sim.save(out/'SIMULATED_INK.png',dpi=(cfg.dpi,cfg.dpi))
@@ -518,7 +518,7 @@ def convert(source:Path,out:Path,cfg:Settings)->dict:
             'Only full-size A1 native coordinates are implemented.'],
         'privacy':'Source, previews, payload bytes and toolpaths can contain personal information; keep private.'}
     write_json(out/'MANIFEST.json',manifest)
-    with (out/'CONVERSION_TRACE.jsonl').open('w',encoding='utf-8') as f:
+    with (out/'CONVERSION_TRACE.jsonl').open('w',encoding='utf-8',newline='\n') as f:
         for i,name in enumerate(manifest['steps'],1):
             f.write(json.dumps({'step':i,'operation':name,'job_source_sha256':src['sha256']},ensure_ascii=False)+'\n')
     refresh_checksums(out)
@@ -527,7 +527,7 @@ def convert(source:Path,out:Path,cfg:Settings)->dict:
 
 def refresh_checksums(out:Path)->None:
     files=sorted(p for p in out.iterdir() if p.is_file() and p.name!='SHA256SUMS.txt')
-    (out/'SHA256SUMS.txt').write_text(''.join(f'{sha256(p.read_bytes())}  {p.name}\n' for p in files),encoding='utf-8')
+    (out/'SHA256SUMS.txt').write_text(''.join(f'{sha256(p.read_bytes())}  {p.name}\n' for p in files),encoding='utf-8',newline='\n')
 
 
 def main()->None:

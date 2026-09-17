@@ -86,6 +86,9 @@ class Tests(unittest.TestCase):
             f=Path(td)/'a.png';im=Image.new('L',(150,100),255);ImageDraw.Draw(im).rectangle((20,20,130,80),outline=0,width=4);im.save(f)
             out=Path(td)/'job';m=p.convert(f,out,p.Settings(width_mm=30,dpi=300))
             self.assertTrue((out/'02_FULL_LABEL_OR_ART_CALIBRATE_FIRST.gcode').is_file());self.assertEqual(m['gcode_checks']['status'],'PASS_STATIC_ONLY')
+            for name in ['00_AIR_FRAME_CALIBRATE_FIRST.gcode','02_FULL_LABEL_OR_ART_CALIBRATE_FIRST.gcode',
+                         'MANIFEST.json','TOOLPATHS.json','CONVERSION_TRACE.jsonl','SHA256SUMS.txt','PEN_PATHS.svg']:
+                self.assertNotIn(b'\r\n',(out/name).read_bytes())
             with self.assertRaises(FileExistsError):p.convert(f,out,p.Settings(width_mm=30,dpi=300))
     def test_strict_requires_decoder_and_codes(self):
         with tempfile.TemporaryDirectory() as td:
